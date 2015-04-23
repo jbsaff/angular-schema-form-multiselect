@@ -1,40 +1,51 @@
-angular.module("schemaForm").run(["$templateCache", function($templateCache) {$templateCache.put("directives/decorators/bootstrap/multiselect/multiselect.html","<div class=\"form-group {{form.htmlClass}} schema-form-multiselect\"\n     ng-class=\"{\'has-error\': hasError(), \'has-success\': hasSuccess(), \'has-feedback\': form.feedback !== false}\">\n    <label class=\"control-label\" ng-show=\"showTitle()\">{{form.title}}</label>\n    <select ng-model=\"$$value$$\"\n          ng-model-options=\"form.ngModelOptions\"\n          multiple=\"multiple\"\n          sf-multiple=\"form.multiple\"\n          ng-disabled=\"form.readonly\"\n          sf-changed=\"form\"\n          class=\"form-control {{form.fieldHtmlClass}}\"\n          schema-validate=\"form\"\n          ng-options=\"item.value as item.name group by item.group for item in form.titleMap\"\n          name=\"{{form.key.slice(-1)[0]}}\"\n          ng-required=\"form.required\"\n          clean-on-destroy=\"true\">\n    </select>\n\n    <div class=\"help-block\" sf-message=\"form.description\"></div>\n</div>");
-$templateCache.put("directives/decorators/bootstrap/multiselect/selectWithDefault.html","<div class=\"form-group {{form.htmlClass}} schema-form-select\"\n     ng-class=\"{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess(), \'has-feedback\': form.feedback !== false}\">\n  <label class=\"control-label {{form.labelHtmlClass}}\" ng-show=\"showTitle()\">\n    {{form.title}}\n  </label>\n  <select ng-model=\"$$value$$\"\n          ng-model-options=\"form.ngModelOptions\"\n          ng-disabled=\"form.readonly\"\n          sf-changed=\"form\"\n          class=\"form-control {{form.fieldHtmlClass}}\"\n          schema-validate=\"form\"\n          ng-options=\"item.value as item.name group by item.group for item in form.titleMap\"\n          name=\"{{form.key.slice(-1)[0]}}\">\n      <option value=\"\" disabled selected hidden>{{form.selectDefault}}</option>\n  </select>\n  <div class=\"help-block\" sf-message=\"form.description\"></div>\n</div>\n");}]);
-angular.module('schemaForm').directive('sfMultiple',
-  function() {
+angular.module("schemaForm").run(["$templateCache", function($templateCache) {$templateCache.put("directives/decorators/bootstrap/multiselect/multiselect.html","<div class=\"form-group {{form.htmlClass}} schema-form-multiselect\"\n     ng-class=\"{\'has-error\': hasError(), \'has-success\': hasSuccess(), \'has-feedback\': form.feedback !== false}\">\n    <label class=\"control-label\" ng-show=\"showTitle()\">{{form.title}}</label>\n    <select ng-model=\"$$value$$\"\n          ng-model-options=\"form.ngModelOptions\"\n          multiple=\"multiple\"\n          sf-multiple=\"form.multiple\"\n          ng-disabled=\"form.readonly\"\n          sf-changed=\"form\"\n          class=\"form-control {{form.fieldHtmlClass}}\"\n          schema-validate=\"form\"\n          ng-options=\"item.value as item.name group by item.group for item in form.titleMap\"\n          ng-required=\"form.required\"\n          name=\"{{form.key.slice(-1)[0]}}\"\n          multiselect-opts=\"{{form.multiselectOpts}}\">\n    </select>\n\n    <div class=\"help-block\" sf-message=\"form.description\"></div>\n</div>");
+$templateCache.put("directives/decorators/bootstrap/multiselect/selectWithDefault.html","<div class=\"form-group {{form.htmlClass}} schema-form-select\"\n     ng-class=\"{\'has-error\': form.disableErrorState !== true && hasError(), \'has-success\': form.disableSuccessState !== true && hasSuccess(), \'has-feedback\': form.feedback !== false}\">\n  <label class=\"control-label {{form.labelHtmlClass}}\" ng-show=\"showTitle()\">\n    {{form.title}}\n  </label>\n  <select ng-model=\"$$value$$\"\n          ng-model-options=\"form.ngModelOptions\"\n          ng-disabled=\"form.readonly\"\n          sf-changed=\"form\"\n          class=\"form-control {{form.fieldHtmlClass}}\"\n          schema-validate=\"form\"\n          ng-options=\"item.value as item.name group by item.group for item in form.titleMap\"\n          ng-required=\"form.required\"\n          name=\"{{form.key.slice(-1)[0]}}\">\n      <option value=\"\" disabled selected hidden>{{form.selectDefault}}</option>\n  </select>\n  <div class=\"help-block\" sf-message=\"form.description\"></div>\n</div>\n");}]);
+angular.module('schemaForm').directive('sfMultiple', ['$http',
+  function($http) {
+
     var defaultMultiselectOpts = {
       maxHeight: 305,
       enableCaseInsensitiveFiltering: true,
-      inheritClass: false,
+      inheritClass: true,
       nSelectedText: 'selected.',
       templates: {
         li: '<li class="multiSelectCheckbox"><a href="javascript:void(0);">' +
         '<label></label></a></li>'
       }
     };
+    var multiselectOptions = {};
 
     return {
       restrict: 'A',
       require: ['ngModel'],
+      transclude: true,
       scope: {
-        ngModel: '=',
-        sfMultiple: '=',
-        multiselectOpts: '='
+        ngModel: '='
       },
-      link: function(scope, element, attrs, multiselectOpts) {
+      link: function(scope, element, attrs) {
         if (!element.multiselect) {
           console.warn('bootstrap-multiselect not present.');
           return;
         }
 
+        if (attrs.multiselectOpts) {
+          angular.extend(multiselectOptions, defaultMultiselectOpts ,
+                         JSON.parse(attrs.multiselectOpts));
+        } else {
+          multiselectOptions = defaultMultiselectOpts;
+        }
+
+        console.log(defaultMultiselectOpts);
+        console.log(multiselectOptions);
+
         scope.$watch(attrs.ngIf, function() {
           console.log('init multiselect');
-          element.multiselect(defaultMultiselectOpts)
+          element.multiselect(multiselectOptions)
         });
       }
     };
 
-  });
+  }]);
 
 angular.module('schemaForm')
     .directive('schemaValidate', ['sfSelect', function(sfSelect) {
