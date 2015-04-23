@@ -21,10 +21,12 @@ angular.module('schemaForm').directive('sfMultiple',
       },
       link: function(scope, element, attrs, multiselectOpts) {
         if (!element.multiselect) {
+          console.warn('bootstrap-multiselect not present.');
           return;
         }
 
         scope.$watch(attrs.ngIf, function() {
+          console.log('init multiselect');
           element.multiselect(defaultMultiselectOpts)
         });
       }

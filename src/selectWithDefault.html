@@ -8,10 +8,11 @@
           ng-disabled="form.readonly"
           sf-changed="form"
           class="form-control {{form.fieldHtmlClass}}"
+          ng-required="form.required"
           schema-validate="form"
           ng-options="item.value as item.name group by item.group for item in form.titleMap"
           name="{{form.key.slice(-1)[0]}}">
-      <option value="" disabled selected hidden>Select ... </option>
+      <option value="" disabled selected hidden>{{form.selectDefault}}</option>
   </select>
   <div class="help-block" sf-message="form.description"></div>
 </div>
