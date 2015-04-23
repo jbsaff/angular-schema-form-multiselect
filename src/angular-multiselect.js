@@ -1,17 +1,17 @@
 angular.module('schemaForm').directive('sfMultiple', ['$http',
   function($http) {
 
-    var defaultMultiselectOpts = {
+    var defaultMultiselectConfig = {
       maxHeight: 305,
       enableCaseInsensitiveFiltering: true,
-      inheritClass: true,
+      inheritClass: false,
       nSelectedText: 'selected.',
       templates: {
         li: '<li class="multiSelectCheckbox"><a href="javascript:void(0);">' +
         '<label></label></a></li>'
       }
     };
-    var multiselectOptions = {};
+    var multiselectConfig = {};
 
     return {
       restrict: 'A',
@@ -26,19 +26,19 @@ angular.module('schemaForm').directive('sfMultiple', ['$http',
           return;
         }
 
-        if (attrs.multiselectOpts) {
-          angular.extend(multiselectOptions, defaultMultiselectOpts ,
-                         JSON.parse(attrs.multiselectOpts));
+        if (attrs.multiselectConfig) {
+          angular.extend(multiselectConfig, defaultMultiselectConfig ,
+                         JSON.parse(attrs.multiselectConfig));
         } else {
-          multiselectOptions = defaultMultiselectOpts;
+          multiselectConfig = defaultMultiselectConfig;
         }
 
-        console.log(defaultMultiselectOpts);
-        console.log(multiselectOptions);
+        //console.log(defaultMultiselectConfig);
+        //console.log(multiselectConfig);
 
         scope.$watch(attrs.ngIf, function() {
           console.log('init multiselect');
-          element.multiselect(multiselectOptions)
+          element.multiselect(multiselectConfig)
         });
       }
     };
