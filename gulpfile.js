@@ -28,7 +28,7 @@ gulp.task('minify', function() {
   stream.done()
         .pipe(concat('asf-bootstrap-multiselect.min.js'))
         .pipe(uglify())
-        .pipe(gulp.dest('.'));
+        .pipe(gulp.dest('dist'));
 
 });
 
@@ -45,7 +45,7 @@ gulp.task('non-minified-dist', function() {
 
   stream.done()
         .pipe(concat('asf-bootstrap-multiselect.js'))
-        .pipe(gulp.dest('.'));
+        .pipe(gulp.dest('dist'));
 
 });
 

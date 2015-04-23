@@ -1,7 +1,7 @@
 {
   "name": "angular-schema-form-multiselect",
   "main": [
-    "bootstrap-multiselect.min.js"
+    "asf-bootstrap-multiselect.min.js"
   ],
   "version": "0.1.0",
   "authors": [
