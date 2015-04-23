@@ -11,6 +11,7 @@
     "globals"
   ],
   "keywords": [
+    "bootstrap-multiselect",
     "angular-schema-form",
     "schema-form",
     "form",
@@ -27,9 +28,9 @@
     "coverage"
   ],
   "dependencies": {
+    "angular-schema-form": ">= 0.7"
   },
   "devDependencies": {
-    "angular-schema-form": ">= 0.7",
     "angular-mocks": ">= 1.2"
   }
 }
