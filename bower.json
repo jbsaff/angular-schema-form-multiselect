@@ -1,0 +1,35 @@
+{
+  "name": "angular-schema-form-multiselect",
+  "main": [
+    "bootstrap-multiselect.min.js"
+  ],
+  "version": "0.1.0",
+  "authors": [
+    "James Saffell @jbsaff"
+  ],
+  "moduleType": [
+    "globals"
+  ],
+  "keywords": [
+    "angular-schema-form",
+    "schema-form",
+    "form",
+    "json",
+    "json-schema",
+    "schema"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "coverage"
+  ],
+  "dependencies": {
+  },
+  "devDependencies": {
+    "angular-schema-form": ">= 0.7",
+    "angular-mocks": ">= 1.2"
+  }
+}

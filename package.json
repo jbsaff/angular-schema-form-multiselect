@@ -1,0 +1,18 @@
+{
+  "name": "angular-schema-form-multiselect",
+  "version": "0.1.0",
+  "description": "multiselect add-on for schema form",
+  "scripts": {
+  },
+  "author": "James Saffell (jbsaff)",
+  "license": "MIT",
+  "devDependencies": {
+    "gulp": "^3.5.6",
+    "gulp-angular-templatecache": "^1.2.1",
+    "gulp-concat": "^2.2.0",
+    "gulp-jscs": "^1.1.0",
+    "gulp-minify-html": "^0.1.1",
+    "gulp-uglify": "^0.2.1",
+    "streamqueue": "0.0.5"
+  }
+}
