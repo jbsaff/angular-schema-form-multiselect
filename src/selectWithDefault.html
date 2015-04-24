@@ -12,7 +12,7 @@
           ng-options="item.value as item.name group by item.group for item in form.titleMap"
           ng-required="form.required"
           name="{{form.key.slice(-1)[0]}}">
-      <option value="" disabled selected hidden>{{form.selectDefault}}</option>
+      <option value="" disabled selected hidden>{{form.selectDefault || 'Select ...'}}</option>
   </select>
   <div class="help-block" sf-message="form.description"></div>
 </div>

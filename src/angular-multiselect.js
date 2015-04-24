@@ -16,7 +16,6 @@ angular.module('schemaForm').directive('sfMultiple', ['$http',
     return {
       restrict: 'A',
       require: ['ngModel'],
-      transclude: true,
       scope: {
         ngModel: '='
       },
