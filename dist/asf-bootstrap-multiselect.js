@@ -28,8 +28,8 @@ angular.module('schemaForm').directive('sfMultiple', ['$http',
         }
 
         if (attrs.multiselectConfig) {
-          angular.extend(multiselectConfig, defaultMultiselectConfig ,
-                         JSON.parse(attrs.multiselectConfig));
+          angular.extend(multiselectConfig, defaultMultiselectConfig,
+              JSON.parse(attrs.multiselectConfig));
         } else {
           multiselectConfig = defaultMultiselectConfig;
         }
@@ -47,11 +47,72 @@ angular.module('schemaForm').directive('sfMultiple', ['$http',
   }]);
 
 angular.module('schemaForm')
-    .directive('schemaValidate', ['sfSelect', function(sfSelect) {
+    .directive('schemaValidate', ['sfUnselect', function(sfUnselect) {
       return {
+        // We want the link function to be *after* the main schema-validate directive.
+        priority: 600,
         link: function(scope, element, attrs) {
+
+          var DEFAULT_DESTROY_STRATEGY;
+          if (scope.options && scope.options.formDefaults) {
+            var formDefaultDestroyStrategy = scope.options.formDefaults.destroyStrategy;
+            var isValidFormDefaultDestroyStrategy = (formDefaultDestroyStrategy === undefined ||
+            formDefaultDestroyStrategy === '' ||
+            formDefaultDestroyStrategy === null ||
+            formDefaultDestroyStrategy === 'retain');
+            if (isValidFormDefaultDestroyStrategy) {
+              DEFAULT_DESTROY_STRATEGY = formDefaultDestroyStrategy;
+            } else {
+              console.warn('Unrecognized formDefaults.destroyStrategy: \'%s\'. ' +
+                  'Used undefined instead.', formDefaultDestroyStrategy);
+              DEFAULT_DESTROY_STRATEGY = undefined;
+            }
+          }
+
+          // Clean up the model when the corresponding form field is $destroy-ed.
+          // Default behavior can be supplied as a formDefault, and behavior
+          // can be overridden in the form definition.
           scope.$on('$destroy', function() {
-            sfSelect(scope.form.key, scope.model, null);
+            var form = scope.$eval(attrs.schemaValidate);
+            // Either set in form definition, or as part of formDefaults.
+            var destroyStrategy = form.destroyStrategy;
+            var schemaType = getSchemaType();
+
+            if (destroyStrategy && destroyStrategy !== 'retain') {
+              // Don't recognize the strategy, so give a warning.
+              console.warn('Unrecognized destroyStrategy: \'%s\'. Used default instead.',
+                      destroyStrategy);
+              destroyStrategy = DEFAULT_DESTROY_STRATEGY;
+            } else if (schemaType !== 'string' && destroyStrategy === '') {
+              // Only 'string' type fields can have an empty string value as a valid option.
+              console.warn('Attempted to use empty string destroyStrategy on ' +
+                      'non-string form type. Used default instead.');
+              destroyStrategy = DEFAULT_DESTROY_STRATEGY;
+            }
+
+            if (destroyStrategy === 'retain') {
+              return; // Valid option to avoid destroying data in the model.
+            }
+
+            destroyUsingStrategy(destroyStrategy);
+
+            function destroyUsingStrategy(strategy) {
+              var strategyIsDefined = (strategy === null ||
+                        strategy === '' ||
+                        typeof strategy == undefined);
+              if (!strategyIsDefined) {
+                strategy = DEFAULT_DESTROY_STRATEGY;
+              }
+              sfUnselect(scope.form.key, scope.model, strategy);
+            }
+
+            function getSchemaType() {
+              if (form.schema) {
+                schemaType = form.schema.type;
+              } else {
+                schemaType = null;
+              }
+            }
           });
         }
       };
@@ -122,3 +183,85 @@ angular.module('schemaForm').config(
       }
     ]
 );
+
+angular.module('schemaForm').factory('sfUnselect', ['sfPath', function(sfPath) {
+  var numRe = /^\d+$/;
+
+  /**
+   * @description
+   * Utility method to clear deep properties without
+   * throwing errors when things are not defined.
+   * DOES NOT create objects when they are missing.
+   *
+   * Based on sfSelect.
+   *
+   * ex.
+   * var foo = Unselect('address.contact.name',obj, null)
+   * var bar = Unselect('address.contact.name',obj, undefined)
+   * Unselect('address.contact.name',obj,'')
+   *
+   * @param {string} projection A dot path to the property you want to set
+   * @param {object} obj   (optional) The object to project on, defaults to 'this'
+   * @param {Any}    unselectValue   The value to set; if parts of the path of
+   *                 the projection is missing empty objects will NOT be created.
+   * @returns {Any|undefined} returns the value at the end of the projection path
+   *                          or undefined if there is none.
+   */
+  return function(projection, obj, unselectValue) {
+    if (!obj) {
+      obj = this;
+    }
+    //Support [] array syntax
+    var parts = typeof projection === 'string' ? sfPath.parse(projection) : projection;
+    //console.log(parts);
+
+    if (parts.length === 1) {
+      //Special case, just setting one variable
+
+      //console.log('Only 1 variable in parts');
+      obj[parts[0]] = unselectValue;
+      return obj;
+    }
+
+    if (typeof obj[parts[0]] === 'undefined') {
+      // If top-level part isn't defined.
+      var isArray = numRe.test(parts[1]);
+      if (isArray) {
+        //console.info('Expected array as top-level part, but is already undefined. Returning.');
+        return undefined;
+      } else if (parts.length > 2) {
+        obj[parts[0]] = {};
+      }
+    }
+
+    var value = obj[parts[0]];
+    for (var i = 1; i < parts.length; i++) {
+      // Special case: We allow JSON Form syntax for arrays using empty brackets
+      // These will of course not work here so we exit if they are found.
+      if (parts[i] === '') {
+        return undefined;
+      }
+
+      var tmp = value[parts[i]];
+      if (i === parts.length - 1) {
+        //End of projection; setting the value
+
+        //console.log('Value set using destroyStrategy.');
+        value[parts[i]] = unselectValue;
+        return unselectValue;
+      } else {
+        // Make sure to NOT create new objects on the way if they are not there.
+        // We need to look ahead to check if array is appropriate.
+        // Believe that if an array/object isn't present/defined, we can return.
+
+        //console.log('Processing part %s', parts[i]);
+        if (typeof tmp === 'undefined' || tmp === null) {
+          //console.log('Part is undefined; returning.');
+          return undefined;
+        }
+        value = tmp;
+      }
+    }
+    return value;
+  };
+}]);
