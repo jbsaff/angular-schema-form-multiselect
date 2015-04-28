@@ -29,7 +29,8 @@
     "coverage"
   ],
   "dependencies": {
-    "angular-schema-form": ">= 0.7"
+    "angular-schema-form": ">= 0.7",
+    "bootstrap-multiselect": ">=0.9.11"
   },
   "devDependencies": {
     "angular-mocks": ">= 1.2"
