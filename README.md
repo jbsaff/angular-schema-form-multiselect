@@ -17,7 +17,7 @@ when an ng-if condition is no longer satisfied).
 ### destroyStrategy
 By default, when a field is removed from the DOM and the $destroy event is broadcast, the schema-validate directive 
 will update the model to set the field value to undefined. This can be overridden by setting the destroyStrategy 
-on a field to one of null, empty string (""), undefined, or "retain". Any other value will be ignored and the default  
+on a field to one of null, empty string (""), undefined, or "retain". Any other value will be ignored and the default 
 behavior will apply. The empty string option only applies to fields that have a type of string; using the empty string 
 with other field types will just be set to the default destroyStrategy. If you'd like to set the destroyStrategy for 
 an entire form, add it to the formDefaults in the [globalOptions](https://github.com/Textalk/angular-schema-form/blob/development/docs/index.md#global-options#global-options)
